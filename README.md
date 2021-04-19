@@ -27,14 +27,16 @@ Original photo
 
 ![Seeking corners](https://db3pap004files.storage.live.com/y4m_Sc0r5aOtEV-gsEXTcfweEErdEBdxVgwgcH_Nqpr03Fqb8zKnpltLbdrIN9wagC-ZZVwYk1ekWIWG1zMu_oikR_EGZBqsbM9ujsgGFPsRdIOrCGeBKVF3g7nGnX1bfHMPIkgOVmNrNsBtuwTOID4py0_mIPWLza_5moZkwN9Q2SXjqBhXPLtvPxt_pL70Fab?width=809&height=486&cropmode=none "Seeking corners")
 ### Abstract a plate
-![Plate](https://db3pap004files.storage.live.com/y4m25Nj-oeOkGE9vabSLu2kzoUtsCOCtUW_naLcaSVBq69mmHOcroYEKI-iYe01VHalKp_GEv-3YEconegCGUEsp3jOeiys27brBonMKHhL04_fxImv8w2v6N_3fp31hfbzj7k4ieBlQ8JiQ59Ns0bga7f8yXiUwwydngnWahi0OipXVJBH8UxHULvkxATEDarO?width=505&height=637&cropmode=none "Plate")
+![Plate](https://db5pap001files.storage.live.com/y4msQ2eQw9u1ZrO9XXKmqypzP5-7IqafS6SojmWt6oSAbGxxHKdeNNAhCfB_IJMn5lhXzilkDtHHiqbtc-GNM6F6E4TBV3dglkUc-kQsi0O6y43MOZfHJau1069H6H86oAVEpwcTlxNhVP64L4fGSkje9hWoC2de4YewpQwwDDQU9Ezr7UyM6n_KEx0onVoY6v-?width=515&height=839&cropmode=none "Plate")
 
 ### Reading a registration number
+
+Every rectangular area described by right contour is read by SVM algoritm as sign. In the end it is addembled in plate number.
 
 
 ## Status of project
 In progress.
+To use it 'drag-and-drop' mode you should install EmguCV packed.
 #### To-Do List:
-* detect a plate in vertical picture
 * optimalization
-
+* find and repair bugs
