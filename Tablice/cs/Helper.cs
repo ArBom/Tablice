@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 using Emgu.CV;
 using Emgu.CV.CvEnum;
@@ -14,7 +15,7 @@ public partial class Helper
         MCvScalar color = new MCvScalar(0, 0, 255);
         int nadmiatowosc = 50;
         Matrix<Byte> zwrotka = new Matrix<byte>(WysTab + nadmiatowosc, SzeTab);//, DepthType.Cv8U , 3);
-        Point[] coUporz_tabl = new Point[4];
+       // Point?[] coUporz_tabl = new Point?[4];
 
         VectorOfPoint co_image = new VectorOfPoint();
         VectorOfPoint gdzie_image = new VectorOfPoint();
@@ -53,23 +54,22 @@ public partial class Helper
         CvInvoke.Imshow("Powierzchnia2", Powierzchnia2);
         CvInvoke.WaitKey(1);
 #endif
-        
-        Point? wlu = LeftUpCorner(Powierzchnia2);
-        Point? wru = RightUpCorner(Powierzchnia2);
-        Point? wld = LeftDnCorner(Powierzchnia2);
-        Point? wrd = RightDnCorner(Powierzchnia2);
 
-        if (wlu.HasValue)
-            coUporz_tabl[0] = wlu.Value;
+        Task<Point?>[] coUporz_tabl = 
+        {
+            Task<Point?>.Factory.StartNew(() => LeftUpCorner(Powierzchnia2).Result),
+            Task<Point?>.Factory.StartNew(() => RightUpCorner(Powierzchnia2).Result),
+            Task<Point?>.Factory.StartNew(() => LeftDnCorner(Powierzchnia2).Result),
+            Task<Point?>.Factory.StartNew(() => RightDnCorner(Powierzchnia2).Result)
+        };
 
-        if (wru.HasValue)
-            coUporz_tabl[1] = wru.Value;
+        Task.WaitAll(coUporz_tabl);
 
-        if (wld.HasValue)
-            coUporz_tabl[2] = wld.Value;
-
-        if (wrd.HasValue)
-            coUporz_tabl[3] = wrd.Value;           
+        if (!(coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue))
+        {
+            Console.WriteLine("It cannot to find a plate in the picture");
+            return null;
+        }
 
         Point[] temp = new Point[1];
 
@@ -86,25 +86,25 @@ public partial class Helper
         gdzie_image.Push(temp);
 
 
-        temp[0] = coUporz_tabl[0];
+        temp[0] = coUporz_tabl[0].Result.Value;
 #if DEBUG
         CvInvoke.Circle(Bis, temp[0], 2, new MCvScalar(105, 0, 255), 5);
 #endif
         co_image.Push(temp);
 
-        temp[0] = coUporz_tabl[2];
+        temp[0] = coUporz_tabl[2].Result.Value;
 #if DEBUG
         CvInvoke.Circle(Bis, temp[0], 2, new MCvScalar(155, 0, 255), 5);
 #endif
         co_image.Push(temp);
 
-        temp[0] = coUporz_tabl[3];
+        temp[0] = coUporz_tabl[3].Result.Value;
 #if DEBUG
         CvInvoke.Circle(Bis, temp[0], 2, new MCvScalar(205, 0, 255), 5);
 #endif
         co_image.Push(temp);
 
-        temp[0] = coUporz_tabl[1];
+        temp[0] = coUporz_tabl[1].Result.Value;
 #if DEBUG
         CvInvoke.Circle(Bis, temp[0], 2, new MCvScalar(255, 0, 255), 5);
 #endif

@@ -112,7 +112,7 @@ namespace Tablice.cs
             CvInvoke.Imshow("PicPlate", PicPlate);
             CvInvoke.WaitKey(1);
 #endif
-
+            //TODO zabezpieczyć na wypadek pustego poniżej
             Matrix<byte> Tablica = Helper.SzukajWierzcholkow(PicPlate, OriginalPhoto, 94, 407); //sama tablica, choć jeszcze wykrzywiona
             Matrix<Byte> NowaBiel = new Matrix<Byte>(Tablica.Rows, Tablica.Cols, 1);
             Mat TablicaHsv = new Mat();

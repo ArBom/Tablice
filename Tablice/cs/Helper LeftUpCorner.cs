@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using Emgu.CV;
 
 public partial class Helper
 {
-    static Point? LeftUpCorner(Matrix<Byte> contour)
+    static async Task<Point?> LeftUpCorner(Matrix<Byte> contour)
     {
         bool horizontal;
         int smallerDim;
