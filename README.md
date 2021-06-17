@@ -33,10 +33,14 @@ Original photo
 
 Every rectangular area described by right contour is read by SVM algoritm as sign. In the end it is addembled in plate number.
 
+![Read](https://db5pap001files.storage.live.com/y4moQkgyDxLgCKBNJDsxlgLI6UU8TsGiP-J415-ZaRC75SNoB6woKuEE48Cqu7rGFW_3wyQslezgVC998eefDTqFbCV_IvO7kWgnV4bMrfM3WSNAnR79-oqTae-6aeghBMSiGZVtbyeJJCjR_vX9lqD4lRLPKdAGxFjQ-HB7itakA0nF9PN5Jnui0t0X1X1iIFk?width=400&height=477&cropmode=none "Read")
 
 ## Status of project
-In progress.
-To use it 'drag-and-drop' mode you should install EmguCV packed.
-#### To-Do List:
+Essentially its done. Single plate is recognited in time less than 1s.
+
+![In_the_end](https://db5pap001files.storage.live.com/y4mLnzOiSU_EBv3kJCKY_MpoM5L1eXmyu787UHy_viq3yQS6M2Qhd2_zOaDTohMpHcRuzxXFOPMprS2wEVeygkC_SgBSCy6NFoRaAxtBtQ1IB2v1p3cgl5CHzCWI4b7tFac-THUf6Ff2NPkqSewk029c_lTgYV4ZzCEqYH5ZciV25Ma3KiWOGyGe22de1ktD-Ug?width=508&height=161&cropmode=none "In the end")
+
+
+#### At a pinch To-Do:
 * optimalization
 * find and repair bugs
