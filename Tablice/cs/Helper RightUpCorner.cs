@@ -5,7 +5,18 @@ using Emgu.CV;
 
 public partial class Helper
 {
+    /// <summary>
+    /// Zwraca Task, którego wynikiem jest punkt będący prawym górnym rogiem białego obszaru argumentu funkcji
+    /// </summary>
+    /// <param name="contour">Binarny obraz konturu tablicy</param>
+    /// <returns>Task, którego rezultatem jest punkt będącegy współrządnymi prawego górnego wierzchołka tabl. rej. lub null w przypadku nizdnalezienia</returns>
+
     static async Task<Point?> RightUpCorner(Matrix<Byte> contour)
+    // ┌────┐
+    // │⭩⭩⭩│
+    // │⭩◱⭩│
+    // │⭩⭩⭩│
+    // └────┘
     {
         bool horizontal;
         int smallerDim;
@@ -25,10 +36,20 @@ public partial class Helper
         }
 
         if (horizontal)
+        // ┌────┐
+        // │⭩⭩⭩│
+        // │■■■ │
+        // │⭩⭩⭩│
+        // └────┘
         {
             for (int line = smallerDim + biggerDim; line != 0; --line)
             {
                 if (line <= smallerDim)
+                // ┌───┐
+                // │  ⭩│
+                // │■■◣│
+                // │   │
+                // └───┘
                 {
                     for (int pixel = 0; pixel != line; ++pixel)
                     {
@@ -41,6 +62,11 @@ public partial class Helper
                     }
                 }
                 else if (line <= biggerDim)
+                // ┌────┐
+                // │ ⭩⭩│
+                // │■◣□ │
+                // │⭩⭩ │
+                // └────┘
                 {
                     for (int pixel = 0; pixel != smallerDim; ++pixel)
                     {
@@ -53,6 +79,11 @@ public partial class Helper
                     }
                 }
                 else
+                // ┌───┐
+                // │   │
+                // │◣□□│
+                // │⭩  │
+                // └───┘
                 {
                     for (int pixel = 0; pixel != smallerDim + biggerDim - line; ++pixel)
                     {
@@ -71,10 +102,20 @@ public partial class Helper
             }
         }
         else
+        // ┌────┐
+        // │⭩■⭩│
+        // │⭩■⭩│
+        // │⭩■⭩│
+        // └────┘
         {
             for (int line = smallerDim + biggerDim; line != 0; --line)
             {
                 if (line <= smallerDim)
+                // ┌───┐
+                // │ ◣⭩│
+                // │ ■ │
+                // │ ■ │
+                // └───┘
                 {
                     for (int pixel = 0; pixel != line; ++pixel)
                     {
@@ -87,6 +128,11 @@ public partial class Helper
                     }
                 }
                 else if (line <= biggerDim)
+                // ┌───┐
+                // │⭩□ │
+                // │⭩◣⭩│
+                // │ ■⭩│
+                // └───┘
                 {
                     for (int pixel = 0; pixel != smallerDim; ++pixel)
                     {
@@ -99,6 +145,11 @@ public partial class Helper
                     }
                 }
                 else
+                // ┌───┐
+                // │ □ │
+                // │ □ │
+                // │⭩◣ │
+                // └───┘
                 {
                     for (int pixel = 0; pixel != smallerDim + biggerDim - line; ++pixel)
                     {
@@ -117,6 +168,8 @@ public partial class Helper
 #endif
             }
         }
+
+        //Zrwacany w przypadku nieznalezienia żadnego białego punktu
         return null;
     }
 }

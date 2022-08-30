@@ -9,13 +9,26 @@ using Emgu.CV.Util;
 
 public partial class Helper
 {
+    /// <summary>
+    /// Zwraca wycinek zdjęcia zawierający białą część tablicy rejetracyjnej
+    /// </summary>
+    /// <param name="Powierzchnia">Binarny odpowiednik źródłowego obrazu, gdzie pole tablicy jest białe</param>
+    /// <param name="zrudlo">Obraz źródłowy zawierający tablicę</param>
+    /// <param name="WysTab">Wysokość Zwracanego obrazu (bez tzw. nadmiarowości)</param>
+    /// <param name="SzeTab">Szerokość Zwrcanego obrazu</param>
+    /// <returns>Przekształcony perspektywicznie obszar obrazu źródłowego zawierający tabl. rej.</returns>
     public static Matrix<Byte> SzukajWierzcholkow(Matrix<Byte> Powierzchnia, Mat zrudlo, int WysTab, int SzeTab)
+    // ┌────┐
+    // │⭨ ⭩│
+    // │ ⧈ │
+    // │⭧ ⭦│
+    // └────┘
     {
-        bool[] wierzcholki = { false, false, false, false };
         MCvScalar color = new MCvScalar(0, 0, 255);
+
+        //Ilość pikseli dodawana do rządanej wysokoćsi zwracanego obrazu (z uwagi na możliwość wykrzywienia tablicy)
         int nadmiatowosc = 50;
-        Matrix<Byte> zwrotka = new Matrix<byte>(WysTab + nadmiatowosc, SzeTab);//, DepthType.Cv8U , 3);
-       // Point?[] coUporz_tabl = new Point?[4];
+        Matrix<Byte> zwrotka = new Matrix<byte>(WysTab + nadmiatowosc, SzeTab);
 
         VectorOfPoint co_image = new VectorOfPoint();
         VectorOfPoint gdzie_image = new VectorOfPoint();
@@ -29,7 +42,7 @@ public partial class Helper
         Emgu.CV.Matrix<int> m = new Emgu.CV.Matrix<int>(10,10);
 
         zrudlo.ConvertTo(zrudlo, DepthType.Cv8U);
-        CvInvoke.FindContours(Powierzchnia, contours, hierarchy, RetrType.List, ChainApproxMethod.ChainApproxNone); //ChainApproxMethod.ChainApproxSimple
+        CvInvoke.FindContours(Powierzchnia, contours, hierarchy, RetrType.List, ChainApproxMethod.ChainApproxNone);
 
         int biggest = 0;
         for (int a = 0; a!=contours.Size; a++)
@@ -62,7 +75,6 @@ public partial class Helper
             Task<Point?>.Factory.StartNew(() => LeftDnCorner(Powierzchnia2).Result),
             Task<Point?>.Factory.StartNew(() => RightDnCorner(Powierzchnia2).Result)
         };
-
         Task.WaitAll(coUporz_tabl);
 
         if (!(coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue))
@@ -123,7 +135,7 @@ public partial class Helper
 
     public static char Mark2Char (int number)
     {
-        if (number >= 0 && number <= 9)
+        if (number >= 0 && number <= 9) //numbers
         {
             return Convert.ToChar(number + 48);
         }
@@ -133,20 +145,6 @@ public partial class Helper
         }
         else
         { return '?'; }
-    }
-
-    public static byte Char2Mark(char mark)
-    {
-        if (mark >= 48 && mark <= 57)
-        {
-            return Convert.ToByte(mark-48); //letters
-        }
-        else if (mark >= 65 && mark <= 90)
-        {
-            return Convert.ToByte(mark - 55); //numbers
-        }
-        else
-        { return 63; } //ASCII(63) = '?'
     }
 }
     

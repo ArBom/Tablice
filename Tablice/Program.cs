@@ -28,7 +28,7 @@ namespace Tablice
             Stopwatch sw = new Stopwatch();
             if (args.Length == 0)
             {
-                Console.WriteLine("Drag and drop picture to read a plate next time.");
+                Console.WriteLine("Drag and drop picture to read a plate next time. Press any key to continue now.");
                 Console.ReadKey();
 
                 sw.Start();

@@ -5,9 +5,20 @@ using Emgu.CV;
 
 public partial class Helper
 {
+    /// <summary>
+    /// Zwraca Task, którego wynikiem jest punkt będący prawy dolnym rogiem białego obszaru argumentu funkcji
+    /// </summary>
+    /// <param name="contour">Binarny obraz konturu tablicy</param>
+    /// <returns>Task, którego rezultatem jest punkt będącegy współrządnymi prawego dolnego wierzchołka tabl. rej. lub null w przypadku nizdnalezienia</returns>
+
     static async Task<Point?> RightDnCorner(Matrix<Byte> contour)
+    // ┌────┐
+    // │⭦⭦⭦│
+    // │⭦◰⭦│
+    // │⭦⭦⭦│
+    // └────┘
     {
-            bool horizontal;
+        bool horizontal;
             int smallerDim;
             int biggerDim;
 
@@ -24,38 +35,58 @@ public partial class Helper
                 biggerDim = contour.Rows;
             }
 
-            if (horizontal)
+        if (horizontal)
+        // ┌────┐
+        // │⭦⭦⭦│
+        // │■■■ │
+        // │⭦⭦⭦│
+        // └────┘
+        {
+            for (int line = smallerDim + biggerDim; line != 0; --line)
             {
-                for (int line = smallerDim + biggerDim; line != 0; --line)
+                if (line <= smallerDim)
+                // ┌───┐
+                // │   │
+                // │■■◤│
+                // │  ⭦│
+                // └───┘
                 {
-                    if (line <= smallerDim)
+                    for (int pixel = 0; pixel != line; ++pixel)
                     {
-                        for (int pixel = 0; pixel != line; ++pixel)
-                        {
-                            if (contour[line - pixel - 1, pixel] == 255)
-                                return new Point(pixel, line - pixel - 1);
+                        if (contour[line - pixel - 1, pixel] == 255)
+                            return new Point(pixel, line - pixel - 1);
 #if DEBUG
-                            else
-                                contour[line - pixel - 1, pixel] = 100;
+                        else
+                            contour[line - pixel - 1, pixel] = 100;
 #endif
 
-                        }
                     }
-                    else if (line <= biggerDim)
+                }
+                else if (line <= biggerDim)
+                // ┌────┐
+                // │ ⭦⭦│
+                // │■◤□ │
+                // │⭦⭦ │
+                // └────┘
+                {
+                    for (int pixel = 0; pixel != smallerDim; ++pixel)
                     {
-                        for (int pixel = 0; pixel != smallerDim; ++pixel)
-                        {
-                            if (contour[smallerDim - pixel - 1, -smallerDim + line + pixel] == 255) //smallerDim - pixel
-                                return new Point(-smallerDim + line + pixel, smallerDim - pixel - 1);
+                        if (contour[smallerDim - pixel - 1, -smallerDim + line + pixel] == 255) //smallerDim - pixel
+                            return new Point(-smallerDim + line + pixel, smallerDim - pixel - 1);
 #if DEBUG
-                            else
-                                contour[smallerDim - pixel - 1, -smallerDim + line + pixel] = 100; //smallerDim - pixel, -smallerDim + line + pixel
+                         else
+                            contour[smallerDim - pixel - 1, -smallerDim + line + pixel] = 100; //smallerDim - pixel, -smallerDim + line + pixel
 #endif
-                        }
                     }
-                    else
-                    {
-                        for (int pixel = 0; pixel != smallerDim + biggerDim - line; ++pixel)
+                }
+                else
+                // ┌───┐
+                // │⭦  │
+                // │◤□□│
+                // │   │
+                // └───┘
+                {
+                    for (int pixel = 0; pixel != smallerDim + biggerDim - line; ++pixel)
                         {
                             if (contour[smallerDim - pixel - 1, -smallerDim + line + pixel] == 255)
                                 return new Point(-smallerDim + line + pixel, smallerDim - pixel - 1);
@@ -71,13 +102,23 @@ public partial class Helper
 #endif
                 }
             }
-            else //vertical RD
-            {
-                for (int line = smallerDim + biggerDim; line != 0; --line)
+            else
+        // ┌───┐
+        // │⭦■⭦│
+        // │⭦■⭦│
+        // │⭦■⭦│
+        // └───┘
+        {
+            for (int line = smallerDim + biggerDim; line != 0; --line)
                 {
                     if (line >= biggerDim)
-                    {
-                        for (int pixel = 0; pixel != smallerDim + biggerDim - line; ++pixel)
+                // ┌───┐
+                // │ ■ │
+                // │ ■ │
+                // │ ◤⭦│
+                // └───┘
+                {
+                    for (int pixel = 0; pixel != smallerDim + biggerDim - line; ++pixel)
                         {
                             if (contour[-smallerDim + line + pixel, smallerDim - pixel - 1] == 255)
                                 return new Point(smallerDim - pixel - 1, -smallerDim + line + pixel);
@@ -88,8 +129,13 @@ public partial class Helper
                         }
                     }
                     else if (line >= smallerDim)
-                    {
-                        for (int pixel = 1; pixel != smallerDim; ++pixel)
+                // ┌───┐
+                // │ ■⭦│
+                // │⭦◤⭦│
+                // │⭦□ │
+                // └───┘
+                {
+                    for (int pixel = 1; pixel != smallerDim; ++pixel)
                         {
                             if (contour[line - smallerDim + pixel, smallerDim - pixel] == 255)
                                 return new Point(smallerDim - pixel, line - smallerDim + pixel);
@@ -100,8 +146,13 @@ public partial class Helper
                         }
                     }
                     else
-                    {
-                        for (int pixel = 0; pixel != line; ++pixel)
+                // ┌───┐
+                // │⭦◤ │
+                // │ □ │
+                // │ □ │
+                // └───┘
+                {
+                    for (int pixel = 0; pixel != line; ++pixel)
                         {
                             if (contour[line - pixel - 1, pixel] == 255)
                                 return new Point(pixel, line - pixel - 1);

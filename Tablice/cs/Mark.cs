@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using Emgu.CV;
 using Emgu.CV.ML;
@@ -13,28 +12,13 @@ namespace Tablice.cs
         public readonly uint OrygWi;
         public bool toDel = false;
         public char spodziewana;
-        Matrix<float> Obraz1d2;
+        readonly Matrix<float> Obraz1d2;
 
         static SVM svm;
 
-        public void Save(char Znak)
-        {
-            bool folderExist = System.IO.Directory.Exists("Marks\\" + Znak);
-            if (!folderExist)
-                System.IO.Directory.CreateDirectory("Marks\\" + Znak);
-
-            int count = System.IO.Directory.GetFiles("Marks\\" + Znak).Count();
-            count = count/2+1;
-            CvInvoke.Imwrite("Marks\\" + Znak + "\\" + Znak + " " + count + ".jpg", NormSource );
-            CvInvoke.Imwrite("Marks\\" + Znak + "\\" + Znak + count + ".jpg", Obraz1d2);
-        }
-
         public void Read()
         {
-            //Matrix<Int64> Obraz1d = new Matrix<Int64>(1, 54 + 80, 1);
             UInt64[] Obraz1d = new UInt64[54 + 80];
-
-            //Obraz1d.SetZero();
 
             for (int pomocnyKopiujacy1 = 0; pomocnyKopiujacy1 < Obraz1d.Length; ++pomocnyKopiujacy1)
             {
@@ -70,7 +54,7 @@ namespace Tablice.cs
 #endif
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object obj) //implementacja sortowania IComparable
         {
             Mark m = (Mark)obj;
 

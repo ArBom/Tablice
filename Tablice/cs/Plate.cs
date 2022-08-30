@@ -11,7 +11,8 @@ namespace Tablice.cs
 {
     class Plate
     {
-        protected string Path;
+        readonly string Path;
+
         private string text;
         public string Text
         {
@@ -20,7 +21,6 @@ namespace Tablice.cs
         }
 
         readonly Mat OriginalPhoto;
-        Point[] CuspOfPlate = new Point[4];
 
         List<Mark> Marks = new List<Mark>();
 
@@ -29,10 +29,10 @@ namespace Tablice.cs
             CvInvoke.Resize(OriginalPhoto, OriginalPhoto, new Size(OriginalPhoto.Width/4, OriginalPhoto.Height/4), 0, 0, Inter.Linear);
 
 #if DEBUG
-                String WinName = "Orig";
-                CvInvoke.NamedWindow(WinName);
-                CvInvoke.Imshow(WinName, OriginalPhoto);
-                CvInvoke.WaitKey(1);
+            String WinName = "Orig";
+            CvInvoke.NamedWindow(WinName);
+            CvInvoke.Imshow(WinName, OriginalPhoto);
+            CvInvoke.WaitKey(1);
 #endif
 
             Mat HSVPic = OriginalPhoto.Clone();
@@ -63,11 +63,11 @@ namespace Tablice.cs
             {
                 for (int b = 2; b < Blue2.Rows - 2; ++b)
                 {
-                    if (   (Blue2[b,a-1]      == 255 && White2[b,a] == 255) //granica
-                        || (PicPlate[b,a-1]   == 255 && White2[b,a] == 255) //w prawo
-                        || (PicPlate[b-1,a-1] == 255 && White2[b,a] == 255) //w prawo w dó³
-                        || (PicPlate[b+1,a-1] == 255 && White2[b,a] == 255) //w prawo do gógy
-                        || (PicPlate[b-2, a] == 255 && White2[b, a] == 255) //w dół możliwe źródło błędów
+                    if (   (Blue2[b,a-1]      == 255 && White2[b,a] == 255) // ◨ granica
+                        || (PicPlate[b,a-1]   == 255 && White2[b,a] == 255) // ⭢ w prawo
+                        || (PicPlate[b-1,a-1] == 255 && White2[b,a] == 255) // ⭨ w prawo w dó³
+                        || (PicPlate[b+1,a-1] == 255 && White2[b,a] == 255) // ⭧ w prawo do góry
+                        || (PicPlate[b-2, a]  == 255 && White2[b,a] == 255) // ⭣ w dół możliwe źródło błędów
                         )
                     {
                         PicPlate[b,a] = 255;
@@ -96,8 +96,7 @@ namespace Tablice.cs
                     }
 
                     //bialy obszar na lewo od niebieskiego
-                    if (PicPlate[a,b] == 255 && Blue2[a,b+5] == 255 && b + 4 < Blue2.Mat.Cols)// || 
-                                                                                                                               //(drawing.row(a).col(b).data[0] == 255 && blekit.row(a).col(b).data[0] == 255))
+                    if (PicPlate[a,b] == 255 && Blue2[a,b+5] == 255 && b + 4 < Blue2.Mat.Cols)
                     {
                         while (PicPlate[a,b] == 255 && b > 1)
                         {
@@ -203,12 +202,8 @@ namespace Tablice.cs
 
             for (int aa = 0; aa != contours.Size; ++aa)
             {
-                //if ( contours[aa].Size >= 40 && contours[aa].Size <= 250)
                 if (CvInvoke.ContourArea(contours[aa]) >= 80)
                 {
-                    //if (contours[aa])
-                    //CvInvoke.DrawContours(TablicaSzara, contours, aa, new MCvScalar(255, 255, 255), 1, LineType.AntiAlias, hierarchy, 1);
-
                     int up = 94;
                     int dw = 0;
                     int lf = 407;
@@ -242,8 +237,10 @@ namespace Tablice.cs
                 }
             }
 
+            //sortowanie kontórów od lewej do prawej
             Marks.Sort();
 
+            //oznaczenie wewnętrznych kontórów (np. kontur będący wnątrzem litery "O")
             if (Marks.Count > 1)
             {
                 for (int a = 0; a != Marks.Count - 1; ++a)
@@ -258,6 +255,7 @@ namespace Tablice.cs
                 }
             }
 
+            //usunięcie wewnętrznych konturów
             for (int c = Marks.Count -1; c>=0; c--)
             {
                 if (Marks[c].toDel)
@@ -266,11 +264,13 @@ namespace Tablice.cs
                 }
             }
 
+            //odczytanie znaków
             Parallel.ForEach(Marks, (m) =>
             {
                 m.Read();
             });
 
+            //łączenie poszczególnych znaków w nuner rejestracyjny
             for (int a = 0; a!=Marks.Count; ++a)
             {
                 text = text + Marks[a].spodziewana;
@@ -280,29 +280,10 @@ namespace Tablice.cs
             Console.Write(text);
         }
 
-        public void SaveDataToLearn()
-        {
-            char[] chars = new char[text.Length];
-            chars = text.ToCharArray();
-            int size = Math.Min(text.Length, Marks.Count);
-        
-            for (int a=0; a!=size; ++a)
-            {
-                Marks[a].Save(chars[a]);
-            }
-        }
-
         public Plate (string Path)
         {
             this.Path = Path;
             OriginalPhoto = CvInvoke.Imread(Path, Emgu.CV.CvEnum.ImreadModes.Color); //TODO zabezpieczyć
-        }
-
-        public Plate (string Path, string text)
-        {
-            this.Path = Path;
-            OriginalPhoto = CvInvoke.Imread(Path, Emgu.CV.CvEnum.ImreadModes.Color);
-            this.text = text;
         }
     }
 }
