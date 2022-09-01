@@ -54,7 +54,8 @@ namespace Tablice.cs
 #endif
         }
 
-        public int CompareTo(object obj) //implementacja sortowania IComparable
+        //implementacja sortowania IComparable
+        public int CompareTo(object obj)
         {
             Mark m = (Mark)obj;
 

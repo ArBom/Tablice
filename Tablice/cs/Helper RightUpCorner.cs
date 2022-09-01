@@ -63,9 +63,9 @@ public partial class Helper
                 }
                 else if (line <= biggerDim)
                 // ┌────┐
-                // │ ⭩⭩│
-                // │■◣□ │
                 // │⭩⭩ │
+                // │■◣□ │
+                // │ ⭩⭩│
                 // └────┘
                 {
                     for (int pixel = 0; pixel != smallerDim; ++pixel)

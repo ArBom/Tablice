@@ -169,8 +169,9 @@ public partial class Helper
 #endif
                 }
             }
-            
-            return null;
+
+        //Zrwacany w przypadku nieznalezienia żadnego białego punktu
+        return null;
 
     }
 }

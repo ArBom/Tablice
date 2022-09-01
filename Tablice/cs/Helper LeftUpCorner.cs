@@ -170,6 +170,8 @@ public partial class Helper
 #endif
             }
         }
+
+        //Zrwacany w przypadku nieznalezienia żadnego białego punktu
         return null;
     }
 }

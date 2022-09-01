@@ -20,8 +20,10 @@ namespace Tablice
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error of EmguCV library: " + Environment.NewLine + e.ToString());
+
+                Console.WriteLine("Error of EmguCV library (try to reinstall Emgu.CV): \n Update-Package -Id Emgu.CV –reinstall \n" + Environment.NewLine + e.ToString());
                 Console.ReadKey();
+                Process.Start("https://docs.microsoft.com/pl-pl/nuget/consume-packages/reinstalling-and-updating-packages");
                 return;
             }
 
