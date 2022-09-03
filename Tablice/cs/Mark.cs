@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.IO;
 using Emgu.CV;
 using Emgu.CV.ML;
 
@@ -11,11 +11,21 @@ namespace Tablice.cs
         public readonly uint left;
         public readonly uint OrygWi;
         public bool toDel = false;
-        public char spodziewana;
+
+        private char odczytana;
+        public char Odczytana
+        {
+            get { return odczytana; }
+            private set { odczytana = value; }
+        }
+
         readonly Matrix<float> Obraz1d2;
 
         static SVM svm;
 
+        /// <summary>
+        /// Funkcja wykorzystując SVM przyporządkowuje NormSource najlepiej pasujący znak alfanumeryczny
+        /// </summary>
         public void Read()
         {
             UInt64[] Obraz1d = new UInt64[54 + 80];
@@ -46,7 +56,7 @@ namespace Tablice.cs
             }
 
             int r = (int)svm.Predict(Obraz1d2);
-            spodziewana = Helper.Mark2Char(r);
+            Odczytana = Helper.Mark2Char(r);
 
 #if DEBUG
             CvInvoke.Imshow("Char" + this.left, NormSource);
@@ -69,8 +79,12 @@ namespace Tablice.cs
                 return 0;
         }
 
+        /// <param name="Src">Obraz odczytywanego znaku</param>
+        /// <param name="left">Pozycja znaku - odleglosc od lewej krawedzi</param>
         public Mark(Matrix<byte> Src, uint left)
         {
+            odczytana = '?';
+
             if (Src.Cols > 0 && Src.Rows > 0)
             {
                 this.left = left;
@@ -83,14 +97,20 @@ namespace Tablice.cs
                 CvInvoke.Imshow("NormSource", this.NormSource);
                 CvInvoke.WaitKey(10);
 #endif
+                //svm jest zmienna statyczną; wczytywanie z pliku, jesli żadna inna instancja klasy Mark tego dotychczas nie zrobiła
                 if (svm == null)
                 {
                     svm = new SVM();
+
                     const string SVMpath = @"..\..\Data\SVM.xml";
 
-                    FileStorage fsr = new FileStorage(SVMpath, FileStorage.Mode.Read);
+                    if (! File.Exists(SVMpath))
+                        throw new ApplicationException("SVM file cannot be read");
 
-                    svm.Read(fsr.GetFirstTopLevelNode());
+                    using (FileStorage fsr = new FileStorage(SVMpath, FileStorage.Mode.Read))
+                    {
+                        svm.Read(fsr.GetFirstTopLevelNode());
+                    }
                 }
             }
             else

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 
 using Emgu.CV;
@@ -17,12 +18,12 @@ namespace Tablice.cs
         public string Text
         {
             get { return text; }
-            set { text = value; }
+            private set { text = value; }
         }
 
         readonly Mat OriginalPhoto;
 
-        List<Mark> Marks = new List<Mark>();
+        private List<Mark> Marks = new List<Mark>();
 
         internal void DetectPlate()
         {
@@ -30,14 +31,17 @@ namespace Tablice.cs
             Matrix<byte> TablicaSzara;
             Matrix<Byte> NowaBiel;
             Matrix<byte> Tablica;
+            Matrix<Byte> PicPlate;
+            Matrix<Byte> White2;
+            Matrix<Byte> Blue2;
 
             #region funkcje lokalne
 
             //Funkcja znajduje białe pole tablicy na którym umieszczone sa znaki skladajace sie na numer rejestracyjny
-            void ZnajdzPoleTablicy()
+            void WyznaczBialeObszaryObokBlekitu()
             {
-                Matrix<Byte> White2 = new Matrix<Byte>(OriginalPhoto.Rows, OriginalPhoto.Cols, 1);
-                Matrix<Byte> Blue2 = new Matrix<Byte>(OriginalPhoto.Rows, OriginalPhoto.Cols, 1);
+                White2 = new Matrix<Byte>(OriginalPhoto.Rows, OriginalPhoto.Cols, 1);
+                Blue2 = new Matrix<Byte>(OriginalPhoto.Rows, OriginalPhoto.Cols, 1);
 
                 CvInvoke.CvtColor(OriginalPhoto, HSVPic, ColorConversion.Rgb2Hsv);
 
@@ -56,7 +60,7 @@ namespace Tablice.cs
                 CvInvoke.WaitKey(1);
 #endif
 
-                Matrix<Byte> PicPlate = new Matrix<Byte>(OriginalPhoto.Rows, OriginalPhoto.Cols);
+                PicPlate = new Matrix<Byte>(OriginalPhoto.Rows, OriginalPhoto.Cols);
 
                 for (int a = 2; a < Blue2.Cols - 2; ++a)
                 {
@@ -66,7 +70,7 @@ namespace Tablice.cs
                             || (PicPlate[b, a - 1] == 255 && White2[b, a] == 255) // ⭢ w prawo
                             || (PicPlate[b - 1, a - 1] == 255 && White2[b, a] == 255) // ⭨ w prawo w dó³
                             || (PicPlate[b + 1, a - 1] == 255 && White2[b, a] == 255) // ⭧ w prawo do góry
-                            || (PicPlate[b - 2, a] == 255 && White2[b, a] == 255) // ⭣ w dół możliwe źródło błędów
+                            || (PicPlate[b - 2, a] == 255 && White2[b, a] == 255) // ⭣ w dół
                             )
                         {
                             PicPlate[b, a] = 255;
@@ -78,17 +82,15 @@ namespace Tablice.cs
                 CvInvoke.Imshow("PicPlate", PicPlate);
                 CvInvoke.WaitKey(1);
 #endif
+            }
 
+            //Funkcja przekształca perspektywicznie częsc obrazu oryginalnego bedaca odpowiednikiem najwiekszego Bialego Obszaru Obok Blekitu
+            void WyodrebnijPoleTablicy()
+            {
                 for (int a = PicPlate.Mat.Rows - 3; a >= 3; --a)
                 {
                     for (int b = PicPlate.Mat.Cols - 6; b >= 3; --b)
                     {
-                        if (a == 376 && b == 0) //TODO skad ta liczba
-                        {
-                            CvInvoke.Imshow("drawing", PicPlate);
-                            CvInvoke.WaitKey(1);
-                        }
-
                         if (PicPlate[a, b] == 255 && White2[a - 1, b] == 255)
                         {
                             PicPlate[a - 1, b] = 255;
@@ -115,7 +117,7 @@ namespace Tablice.cs
                 NowaBiel = new Matrix<Byte>(Tablica.Rows, Tablica.Cols, 1);
                 Mat TablicaHsv = new Mat();
                 CvInvoke.CvtColor(Tablica, TablicaHsv, ColorConversion.Bgr2Hsv);
-                CvInvoke.InRange(TablicaHsv, new ScalarArray(new MCvScalar(0, 0, 70)), new ScalarArray(new MCvScalar(255, 70, 255)), NowaBiel); //male hsv, duze hsv
+                CvInvoke.InRange(TablicaHsv, new ScalarArray(new MCvScalar(0, 0, 70)), new ScalarArray(new MCvScalar(255, 70, 255)), NowaBiel);
 
 #if DEBUG
                 CvInvoke.Imshow("NowaBiel", NowaBiel);
@@ -126,9 +128,11 @@ namespace Tablice.cs
             //Funcja prostuje ewentualne odksztalcenie tablicy w kształcie litery "U"
             void UsunKrzywizneTablicy()
             {
+                //zmienna przechowuje ilosc pikseli pomiedzy tablica a gorna krawedzia obrazu
                 int Hmax = 0;
                 for (int a = 0; a != NowaBiel.Cols / 2; ++a)
                 {
+                    //Szukanie wartosci Hmax idac od lewej str. - eliminowanie bledu szumów, ramek tablicy itp.
                     int delta;
                     if (Hmax - 2 <= 0)
                     {
@@ -156,16 +160,21 @@ namespace Tablice.cs
                 TablicaSzara = new Matrix<Byte>(Tablica.Rows, Tablica.Cols, 1);
                 CvInvoke.CvtColor(Tablica, TablicaSzara, ColorConversion.Bgr2Gray);
 
+                //W przypadku zbyt małego odkształcenia nie warto prostować && w przypadku zbyt dużego można podejrzewać bład w wyznaczaniu wartosci
                 if (Hmax > 2 && Hmax < 35)
                 {
+                    //Wyznaczenie promienia okregu, którego odcinek jest dodany powyzej tablicy
                     double R = (Math.Pow(NowaBiel.Cols, 2) / (8 * Hmax)) + Hmax / 2;
 
+                    //Przesuwanie o odcinek koła do gory
                     Parallel.For(0, NowaBiel.Cols / 2 + 1, i =>
                     {
+                        //Wyznaczenie odleglosci pomiedzy cieciwa, a punktem lezacym na okregu
                         int h = Convert.ToInt16(Math.Sqrt(Math.Pow(R, 2) - Math.Pow(NowaBiel.Cols / 2 - i, 2)) - R + Hmax) + 3;
 
                         for (int a = 0; a != 96; ++a)
                         {
+                            //odksztalcenie powinno byc symetryczne wzgladem pionowej linii środka tablicy stad 2 linijki ponizej
                             TablicaSzara[a, i] = TablicaSzara[a + h, i];
                             TablicaSzara[a, NowaBiel.Cols - i - 1] = TablicaSzara[a + h, NowaBiel.Cols - i - 1];
                         }
@@ -183,8 +192,10 @@ namespace Tablice.cs
 
                 CvInvoke.CopyMakeBorder(NowaBiel, NowaBiel, 2, 2, 2, 2, BorderType.Constant, new MCvScalar(255));
 
+#if DEBUG
                 CvInvoke.Imshow("tutaj szukam konturów", NowaBiel);
                 CvInvoke.WaitKey(5);
+#endif
 
                 Emgu.CV.Util.VectorOfVectorOfPoint contours = new Emgu.CV.Util.VectorOfVectorOfPoint();
                 Mat hierarchy = new Mat();
@@ -245,7 +256,6 @@ namespace Tablice.cs
             //funkcja porzadkuje kontury znakow i odczytuje numer rejestracyjny
             void OdczytajTabliceRej()
             {
-                #region odczyt
                 //sortowanie kontórów od lewej do prawej
                 Marks.Sort();
 
@@ -273,6 +283,10 @@ namespace Tablice.cs
                     }
                 }
 
+                //sprawdzenie czy tablica ma odpowiednia ilosc znakow
+                if (Marks.Count < 4 || Marks.Count > 7)
+                    throw new ApplicationException("Number of found marks is incorrect");
+
                 //odczytanie znaków
                 Parallel.ForEach(Marks, (m) =>
                 {
@@ -282,12 +296,10 @@ namespace Tablice.cs
                 //łączenie poszczególnych znaków w numer rejestracyjny
                 for (int a = 0; a != Marks.Count; ++a)
                 {
-                    text = text + Marks[a].spodziewana;
+                    Text = Text + Marks[a].Odczytana;
                 }
                 #endregion
             }
-
-            #endregion
 
             //Zmniejszenie rozdzielczosci w celu przyspieszenia dzialania progranu
             CvInvoke.Resize(OriginalPhoto, OriginalPhoto, new Size(OriginalPhoto.Width/4, OriginalPhoto.Height/4), 0, 0, Inter.Linear);
@@ -301,7 +313,9 @@ namespace Tablice.cs
 
             HSVPic = OriginalPhoto.Clone();
 
-            ZnajdzPoleTablicy();
+            WyznaczBialeObszaryObokBlekitu();
+
+            WyodrebnijPoleTablicy();
 
             UsunKrzywizneTablicy();
 
@@ -314,12 +328,16 @@ namespace Tablice.cs
             OdczytajTabliceRej();
 
             Console.Write(Environment.NewLine);
-            Console.Write(text);
+            Console.Write(Text);
         }
 
         public Plate (string Path)
         {
             this.Path = Path;
+
+            if (!File.Exists(Path))
+                throw new ApplicationException("File with plate to read doesn't exist");
+
             OriginalPhoto = CvInvoke.Imread(Path, Emgu.CV.CvEnum.ImreadModes.Color); //TODO zabezpieczyć
         }
     }

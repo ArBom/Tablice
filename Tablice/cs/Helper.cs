@@ -28,6 +28,7 @@ public partial class Helper
 
         //Ilość pikseli dodawana do rządanej wysokoćsi zwracanego obrazu (z uwagi na możliwość wykrzywienia tablicy)
         int nadmiatowosc = 50;
+
         Matrix<Byte> zwrotka = new Matrix<byte>(WysTab + nadmiatowosc, SzeTab);
 
         VectorOfPoint co_image = new VectorOfPoint();
@@ -44,6 +45,7 @@ public partial class Helper
         zrudlo.ConvertTo(zrudlo, DepthType.Cv8U);
         CvInvoke.FindContours(Powierzchnia, contours, hierarchy, RetrType.List, ChainApproxMethod.ChainApproxNone);
 
+        //Znajdywanie najwiekszego bialego obszaru - zalozenie, ze bedzie to biale pole tablicy
         int biggest = 0;
         for (int a = 0; a!=contours.Size; a++)
         {
@@ -68,6 +70,7 @@ public partial class Helper
         CvInvoke.WaitKey(1);
 #endif
 
+        //Wyznaczenie wierzchołków tablicy
         Task<Point?>[] coUporz_tabl = 
         {
             Task<Point?>.Factory.StartNew(() => LeftUpCorner(Powierzchnia2).Result),
@@ -79,10 +82,10 @@ public partial class Helper
 
         if (!(coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue & coUporz_tabl[0].Result.HasValue))
         {
-            Console.WriteLine("It cannot to find a plate in the picture");
-            return null;
+            throw new ApplicationException("It cannot to find a plate in the picture");
         }
 
+        #region przekształcenie perspektywiczne
         Point[] temp = new Point[1];
 
         temp[0] = new Point(0, 0);
@@ -124,13 +127,14 @@ public partial class Helper
 
         Mat H = CvInvoke.FindHomography(co_image, gdzie_image, 0);
         CvInvoke.WarpPerspective(zrudlo, zwrotka, H, zwrotka.Size);
+        #endregion
 
 #if DEBUG
         CvInvoke.Imshow("tablica", zwrotka);
         CvInvoke.Imshow("founf", Bis);
         CvInvoke.WaitKey(1);
 #endif
-          return zwrotka;
+        return zwrotka;
     }
 
     public static char Mark2Char (int number)
@@ -144,7 +148,9 @@ public partial class Helper
             return Convert.ToChar(number + 55); 
         }
         else
-        { return '?'; }
+        {
+            throw new ApplicationException("SVM doesnt match to plate marks");
+        }
     }
 }
     
