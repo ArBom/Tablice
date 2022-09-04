@@ -284,7 +284,7 @@ namespace Tablice.cs
                 }
 
                 //sprawdzenie czy tablica ma odpowiednia ilosc znakow
-                if (Marks.Count < 4 || Marks.Count > 7)
+                if (Marks.Count < 4 || Marks.Count > 8)
                     throw new ApplicationException("Number of found marks is incorrect");
 
                 //odczytanie znaków

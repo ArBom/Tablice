@@ -102,7 +102,8 @@ namespace Tablice.cs
                 {
                     svm = new SVM();
 
-                    const string SVMpath = @"..\..\Data\SVM.xml";
+                    string directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+                    string SVMpath = Directory.GetFiles(directory, "SVM.xml", SearchOption.TopDirectoryOnly)[0];
 
                     if (! File.Exists(SVMpath))
                         throw new ApplicationException("SVM file cannot be read");

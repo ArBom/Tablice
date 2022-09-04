@@ -51,7 +51,11 @@ public partial class Helper
         {
             if (CvInvoke.ContourArea(contours[a]) > CvInvoke.ContourArea(contours[biggest]))
             {
-                biggest = a;
+                System.Drawing.Rectangle size = CvInvoke.BoundingRectangle(contours[a]);
+                
+                //Tablica powinna być szersza niż wyższa, nawet lekko obrócona
+                if(size.Height / size.Width < 1)
+                    biggest = a;
             }
         }
 
