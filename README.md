@@ -1,10 +1,9 @@
-# (Pol) Plate Recognition
+# (🇵🇱) Plate Recognition
 Console App created in MS Visual Studio 2017 enables one to read registracion number from graphic file.
 ## Table of contents
 * [Technologies](#Technologies)
 * [Algorithm](#Alorithm)
 * [Status of project](#Status_of_project)
-
 
 ## Technologies
 Project is created with:
@@ -15,32 +14,45 @@ PM> Install-Package Emgu.CV -Version 4.4.0.4061
 ```
 
 ## Algorithm
-### Detect a plate
-![Original photo](https://db3pap004files.storage.live.com/y4mVxxlUvMe_mzDHJA2Q67V5DG1SFVa7tlEnXZjLUKho2lqe6ZgV6A2IoycvfpPdDUO4GBLpmcW2_Apnf8VEsYeq8kLgARRqlzZkKInnY3KAWAh7BITvdG-gBgOaax44T2_GQ_Kb8F-7pEy01TH2Wz6ycLknvRyloWZdj20yTIoXSPeYS2h3kSvFvit7UXScTyI?width=807&height=486&cropmode=none "Original photo")
-Original photo
+### 1. Detect a plate
+![Original photo](https://github.com/user-attachments/assets/43b3d7bc-ff0f-4812-8e05-b3830f0aa0a9)
 
-![Photo with blue mask](https://db3pap004files.storage.live.com/y4mWqvNvZNT47uu8IWbtRYuW2Gfpuz_PQUpSXB3huwpQleRspVrjlYh0cil4uFBVYmD_I-yidOsgFne5F7ZN03KvgM_LOJbJZ0IdOR6Vje1L2gc21xNbX3FiHD_FpEHf2Nh5GhhNCP-cH3kAeTiKEd4HG1Q7PittpOhIzDFHqXph0TwcguwpRDP_Cdi7ZxLBpnJ?width=811&height=487&cropmode=none "Photo with blue mask")
+Original photo with plate
 
-![Photo with white mask](https://db3pap004files.storage.live.com/y4mQ8XOoORQ7l9b1FypPIZP2_7rfUdO-A_dMifcImCda8_GtfY2hM-gd2RUzXKVZ6NnwWfJ3Q6iDxzgfKxc03ugVs-lXlG2c-ccwRcETTmpuKLVmh9G7i1T074Zg6iax4bhI3L94yQTEFObrcbzRIMcwJVv8sAc5pznJrDHTEB744fGCJ2A9JHK63yScG8puWkV?width=816&height=486&cropmode=none "Photo with white mask")
+#### 1.1
+![Photo with blue mask](https://github.com/user-attachments/assets/809f1abe-9640-4df6-aa59-f4a107a99c66)
 
-![Connected areas](https://db3pap004files.storage.live.com/y4mJpbJUWjUvlRRtvATQQe6xGOWBkiaLTw9aatHvWe70z5R3mJdFmnB35ZTo8DFPhnsiHLh7Lv_HBQFzMW_-gCXJyOt47q18NG3jzJJ2mzutwQk6bsmNk8DnMBA9anBLj6XNN564Q1Yu33heeRIXAhWuLilQryOSgVd-gDyon8rHwdBs9b5BvT1Tklg1PrvPJjY?width=1021&height=610&cropmode=none "Connected areas")
+A blue mask is applied to the original image...
 
-![Seeking corners](https://db3pap004files.storage.live.com/y4m_Sc0r5aOtEV-gsEXTcfweEErdEBdxVgwgcH_Nqpr03Fqb8zKnpltLbdrIN9wagC-ZZVwYk1ekWIWG1zMu_oikR_EGZBqsbM9ujsgGFPsRdIOrCGeBKVF3g7nGnX1bfHMPIkgOVmNrNsBtuwTOID4py0_mIPWLza_5moZkwN9Q2SXjqBhXPLtvPxt_pL70Fab?width=809&height=486&cropmode=none "Seeking corners")
-### Abstract a plate
-![Plate](https://db5pap001files.storage.live.com/y4msQ2eQw9u1ZrO9XXKmqypzP5-7IqafS6SojmWt6oSAbGxxHKdeNNAhCfB_IJMn5lhXzilkDtHHiqbtc-GNM6F6E4TBV3dglkUc-kQsi0O6y43MOZfHJau1069H6H86oAVEpwcTlxNhVP64L4fGSkje9hWoC2de4YewpQwwDDQU9Ezr7UyM6n_KEx0onVoY6v-?width=515&height=839&cropmode=none "Plate")
+#### 1.2
+![Photo with white mask](https://github.com/user-attachments/assets/52029116-4b52-4494-8a9a-206a6ea1753a)
 
-### Reading a registration number
+...and a white one.
 
-Every rectangular area described by right contour is read by SVM algoritm as sign. In the end it is addembled in plate number.
+#### 1.3
+![Connected areas](https://github.com/user-attachments/assets/b5cfd2d0-ec20-40fe-aa1d-d5c2c321c233)
 
-![Read](https://db5pap001files.storage.live.com/y4moQkgyDxLgCKBNJDsxlgLI6UU8TsGiP-J415-ZaRC75SNoB6woKuEE48Cqu7rGFW_3wyQslezgVC998eefDTqFbCV_IvO7kWgnV4bMrfM3WSNAnR79-oqTae-6aeghBMSiGZVtbyeJJCjR_vX9lqD4lRLPKdAGxFjQ-HB7itakA0nF9PN5Jnui0t0X1X1iIFk?width=400&height=477&cropmode=none "Read")
+Both images (1.1 and 1.2) are merged into one with possible areas of white part of plate.
+
+#### 1.4
+![Seeking corners](https://github.com/user-attachments/assets/e14f00fc-0b6f-44ad-b1c4-43fa73fc24cc)
+
+The program searches for vertices of biggest area (of image 1.3)
+
+### 2. Abstract a plate
+![Plate](https://github.com/user-attachments/assets/4d4fe0a8-b469-4a16-87e3-1f2101badb53)
+
+Program dissects the white part of image from image 1.3 with use the corners found at image 1.4.
+Then it reshape plate to the best possible to read data.
+In the end of this step it mark the contours of every single sign.
+
+### 3. Reading a registration number
+
+![Read](https://github.com/user-attachments/assets/b44f1c1d-8e55-4f87-9254-833c49bb3a27)
+
+Every rectangular area described by contour (in the end of 2.) is read by SVM algorithm assign. In the end they are assembled together into plate number.
 
 ## Status of project
 Essentially its done. Single plate is recognited in time less than 1s.
 
-![In_the_end](https://db5pap001files.storage.live.com/y4mLnzOiSU_EBv3kJCKY_MpoM5L1eXmyu787UHy_viq3yQS6M2Qhd2_zOaDTohMpHcRuzxXFOPMprS2wEVeygkC_SgBSCy6NFoRaAxtBtQ1IB2v1p3cgl5CHzCWI4b7tFac-THUf6Ff2NPkqSewk029c_lTgYV4ZzCEqYH5ZciV25Ma3KiWOGyGe22de1ktD-Ug?width=508&height=161&cropmode=none "In the end")
-
-
-#### At a pinch To-Do:
-* optimalization
-* find and repair bugs
+![show it!](https://github.com/user-attachments/assets/36489a61-9f2f-42e3-87a4-17cda7cd4aab)
